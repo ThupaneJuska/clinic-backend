@@ -112,7 +112,6 @@ module.exports = {
     addMedication: async (req, res) => {
         try {
             const payload = { ...req.body };
-            payload['availability'] = "Available"
             const newMedication = new Meds(payload)
             const result = await newMedication.save()
             res.status(201).send(result)
@@ -121,8 +120,13 @@ module.exports = {
         }
     },
     getMeds: async (req, res) => {
-        const result = await Meds.find()
-        res.status(200).send(result)
+        try {
+            const result = await Meds.find();
+            res.status(200).send(result);
+        } catch (error) {
+            console.error("Error fetching medications:", error);
+            res.status(500).send({ error: "An error occurred while fetching medications." });
+        }
     },
     updateMeds: async (req, res) => {
         const options = { upsert: true };
@@ -137,18 +141,18 @@ module.exports = {
     },
     deleteMed: async (req, res) => {
         try {
-            const payload = { ...req.body };
-            const deletedItem = await Meds.deleteOne(payload);
+            const {_id} = req.params;
+            const deletedItem = await Meds.findByIdAndDelete(_id);
             console.log("item to delete", deletedItem)
             if (!deletedItem) {
                return res.status(404).send("Medication not found")
             }
 
-            res.status(200).send({message:'Successfully deleted'})
+            res.status(200).send(deletedItem)
 
             
         } catch (error) {
-            res.status(404).send(error)
+            res.status(500).send(error)
         }
     }
 

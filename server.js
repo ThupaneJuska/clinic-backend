@@ -10,7 +10,7 @@ const corsOptions = {
 const mongoose = require('mongoose')
 
 // Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/SEKGOPO-CLINIC')
+mongoose.connect('mongodb://localhost:27017/SEKGOPO-CLINIC')
     .catch(err => console.log('Something went wrong...', err))
 
 //Middleware
