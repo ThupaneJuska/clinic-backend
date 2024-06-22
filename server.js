@@ -10,8 +10,8 @@ const corsOptions = {
 const mongoose = require('mongoose')
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/SEKGOPO-CLINIC')
-    .catch(err => console.log('Something went wrong...', err))
+// mongoose.connect(process.env.MONGODB_CONNECTION)
+//     .catch(err => console.log('Something went wrong...', err))
 
 //Middleware
 app.use(express.json())

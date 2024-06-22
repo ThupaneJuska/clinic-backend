@@ -6,7 +6,11 @@ const SendEmail = require('../Controllers/EmailController');
 const crypto = require("crypto");
 
 let verification_code;
+const mongoose = require('mongoose')
 
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_CONNECTION)
+    .catch(err => console.log('Something went wrong...', err))
 
 module.exports = {
     defaultRoute: async (req, res) => {
@@ -92,6 +96,7 @@ module.exports = {
 
             req.body = body;
             SendEmail.send_email(req, res);
+            res.status(200).send(user)
         } catch (err) {
             res.status(400).send(err);
         }
@@ -99,11 +104,18 @@ module.exports = {
     change_password: async (req, res) => {
         const hashedPassword = await bcrypt.hash(req.body.new_password, 10);
 
-        await Admin.updateOne({ email: req.body.email }, {
+        await Admin.updateOne({ email: req.params.email }, {
             password: hashedPassword
         });
 
         res.status(200).send({ message: "success" });
+    },
+    verify_code: async (req, res) => {
+        if (req.body.verification_code === verification_code) {
+            res.status(200).send({ message: "success" });
+        } else {
+            res.status(400).send('Invalid Verification Code');
+        }
     },
     getAdmins: async (req, res) => {
         const result = await Admin.find()
