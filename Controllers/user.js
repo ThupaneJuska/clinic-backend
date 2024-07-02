@@ -9,8 +9,8 @@ let verification_code;
 const mongoose = require('mongoose')
 
 // Connect to MongoDB
-// mongoose.connect(process.env.MONGODB_CONNECTION)
-//     .catch(err => console.log('Something went wrong...', err))
+mongoose.connect(process.env.MONGODB_CONNECTION)
+    .catch(err => console.log('Something went wrong...', err))
 
 module.exports = {
     defaultRoute: async (req, res) => {
