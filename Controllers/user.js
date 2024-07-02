@@ -9,8 +9,8 @@ let verification_code;
 const mongoose = require('mongoose')
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_CONNECTION)
-    .catch(err => console.log('Something went wrong...', err))
+// mongoose.connect(process.env.MONGODB_CONNECTION)
+//     .catch(err => console.log('Something went wrong...', err))
 
 module.exports = {
     defaultRoute: async (req, res) => {
@@ -145,7 +145,7 @@ module.exports = {
         const filter = { ...req.params }
         try {
             const result = await Meds.updateOne(filter, req.body, options);
-            console.log("Res", result)
+            
             res.status(200).send(result)
         } catch (error) {
             res.status(500).send(error);
@@ -155,7 +155,6 @@ module.exports = {
         try {
             const {_id} = req.params;
             const deletedItem = await Meds.findByIdAndDelete(_id);
-            console.log("item to delete", deletedItem)
             if (!deletedItem) {
                return res.status(404).send("Medication not found")
             }

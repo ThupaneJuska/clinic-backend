@@ -3,15 +3,15 @@ const app = express()
 const PORT = process.env.PORT || 3000
 const cors = require('cors')
 const corsOptions = {
-    origin: 'http://localhost:4200',
+    origin: 'https://clinic-backend-f31ad.web.app/',
     optionsSuccessStatus: 200 
 }
 
 const mongoose = require('mongoose')
 
 // Connect to MongoDB
-// mongoose.connect(process.env.MONGODB_CONNECTION)
-//     .catch(err => console.log('Something went wrong...', err))
+mongoose.connect("mongodb://localhost:27017/SEKGOPO-CLINIC")
+    .catch(err => console.log('Something went wrong...', err))
 
 //Middleware
 app.use(express.json())
