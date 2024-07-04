@@ -2,11 +2,14 @@ const express = require('express')
 const app = express()
 const dotenv = require('dotenv')
 dotenv.config()
+const https = require('https')
 const PORT = process.env.PORT || 3000
 const cors = require('cors')
+const fs = require('fs')
+const path = require('path')
 
 const allowedOrigins = [
-    'http://localhost:4200',
+    'https://localhost:4200',
     'https://clinic-backend-f31ad.web.app'
   ];
 
@@ -35,7 +38,12 @@ app.use(cors(corsOptions))
 const routes = require('./Routes/routes');
 app.use(routes);
 
+//SSL server
+const sslServer = https.createServer({
+    key: fs.readFileSync(path.join(__dirname,'cert','key.pem')),
+    cert:fs.readFileSync(path.join(__dirname,'cert','cert.pem'))
+},app)
 // Listen to port 3000
-app.listen(PORT, () => {
+sslServer.listen(PORT, () => {
     console.log(`App running on port ${PORT}...`)
 })
