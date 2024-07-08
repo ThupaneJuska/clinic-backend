@@ -10,7 +10,7 @@ const path = require('path')
 
 const allowedOrigins = [
     'https://localhost:4200',
-    'https://clinic-backend-f31ad.web.app'
+    'https://clinic-admin-b762d.web.app'
   ];
 
 const corsOptions = {
