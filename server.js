@@ -39,11 +39,11 @@ const routes = require('./Routes/routes');
 app.use(routes);
 
 //SSL server
-const sslServer = https.createServer({
-    key: fs.readFileSync(path.join(__dirname,'cert','key.pem')),
-    cert:fs.readFileSync(path.join(__dirname,'cert','cert.pem'))
-},app)
+// const sslServer = https.createServer({
+//     key: fs.readFileSync(path.join(__dirname,'cert','key.pem')),
+//     cert:fs.readFileSync(path.join(__dirname,'cert','cert.pem'))
+// },app)
 // Listen to port 3000
-sslServer.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`App running on port ${PORT}...`)
 })
