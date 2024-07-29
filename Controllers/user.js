@@ -1,6 +1,8 @@
 
 const Admin = require('../Models/admin')
 const Meds = require('../Models/medication')
+const File = require('../Models/file')
+const { Readable } = require("stream")
 const bcrypt = require('bcrypt');
 const SendEmail = require('../Controllers/EmailController');
 const crypto = require("crypto");
@@ -9,8 +11,14 @@ let verification_code;
 const mongoose = require('mongoose')
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_CONNECTION)
-    .catch(err => console.log('Something went wrong...', err))
+// mongoose.connect(process.env.MONGODB_CONNECTION)
+//     .catch(err => console.log('Something went wrong...', err))
+
+let bucket;
+mongoose.connection.on("open", () => {
+    console.log('COONECTION RUNNING')
+    bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db);
+})
 
 module.exports = {
     defaultRoute: async (req, res) => {
@@ -80,7 +88,7 @@ module.exports = {
 
         try {
             verification_code = crypto.randomBytes(2).toString('hex');
-            console.log("Very code =>>",verification_code)
+            console.log("Very code =>>", verification_code)
             let body = {
                 to: user[0].email, // list of receivers
                 subject: "Verification Code", // Subject line
@@ -145,7 +153,7 @@ module.exports = {
         const filter = { ...req.params }
         try {
             const result = await Meds.updateOne(filter, req.body, options);
-            
+
             res.status(200).send(result)
         } catch (error) {
             res.status(500).send(error);
@@ -153,18 +161,74 @@ module.exports = {
     },
     deleteMed: async (req, res) => {
         try {
-            const {_id} = req.params;
+            const { _id } = req.params;
             const deletedItem = await Meds.findByIdAndDelete(_id);
             if (!deletedItem) {
-               return res.status(404).send("Medication not found")
+                return res.status(404).send("Medication not found")
             }
 
             res.status(200).send(deletedItem)
 
-            
+
         } catch (error) {
             res.status(500).send(error)
         }
-    }
+    },
+
+    uploadFIle: async (req, res) => {
+        const { files } = req;
+
+        if (!files || files.length === 0) {
+            return res.status(400).send('No files were uploaded.');
+        }
+
+        const { fieldname, originalname, mimetype, buffer } = files[0];
+
+        const newFile = new File({
+            filename: originalname,
+            contentType: mimetype,
+            length: buffer.length,
+        });
+
+        try {
+            const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db);
+            const uploadStream = bucket.openUploadStream(originalname);
+            const readBuffer = new Readable();
+
+            readBuffer.push(buffer);
+            readBuffer.push(null);
+
+            readBuffer.pipe(uploadStream)
+            .on('error', (error) => {
+                console.error('Error uploading file:', error);
+                res.status(500).send('Error uploading file.');
+            })
+            .on('finish', async () => {
+                newFile.id = uploadStream.id;
+                try {
+                    const savingResults = await newFile.save();
+                    if (!savingResults) {
+                        return res.status(500).send('Error saving file metadata.');
+                    }
+                    res.status(200).send({ file: savingResults, message: 'File uploaded successfully.' });
+                } catch (error) {
+                    console.error('Error saving file metadata:', error);
+                    res.status(500).send('Error saving file metadata.');
+                }
+            });
+        } catch (error) {
+            console.error('Error creating upload stream:', error);
+            res.status(500).send('Error creating upload stream.');
+
+        }
+    },
+    downloadFile: (req, res) => {
+        const { id } = req.params;
+        let downloadStream = bucket.openDownloadStream(new mongoose.Types.ObjectId(id))
+        downloadStream.on("file", (file) => {
+            res.set("Content-Type", file.contentType)
+        })
+        downloadStream.pipe(res)
+    },
 
 }

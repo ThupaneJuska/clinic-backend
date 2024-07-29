@@ -9,8 +9,10 @@ const fs = require('fs')
 const path = require('path')
 
 const allowedOrigins = [
-    'https://localhost:4200',
-    'https://clinic-admin-b762d.web.app'
+    'http://localhost:4200',
+    'http://localhost:54327',
+    'https://clinic-admin-b762d.web.app',
+    'http://127.0.0.1:5500'
   ];
 
 const corsOptions = {
@@ -27,8 +29,8 @@ const corsOptions = {
 const mongoose = require('mongoose')
 
 // Connect to MongoDB
-// mongoose.connect("mongodb://localhost:27017/SEKGOPO-CLINIC")
-//     .catch(err => console.log('Something went wrong...', err))
+mongoose.connect("mongodb://localhost:27017/SEKGOPO-CLINIC")
+    .catch(err => console.log('Something went wrong...', err))
 
 //Middleware
 app.use(express.json())
