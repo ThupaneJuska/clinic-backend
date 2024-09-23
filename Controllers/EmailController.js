@@ -12,7 +12,7 @@ module.exports = {
                 secure:true,
                 auth: {
                     user: process.env.APP_MAIL,
-                    pass: "hmni dobr bxow kbxt"
+                    pass: "jimz ysri ffqn ctik"
                 },
                 tls: {
                     // do not fail on invalid certs
